@@ -1,0 +1,66 @@
+name: Terraform CI/CD
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+env:
+  TF_VERSION: 1.8.5
+  TF_WORKING_DIR: loadbalancer.
+  AWS_REGION: us-west-2
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: loadbalancer
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.8.5
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+      - name: Terraform Validate
+        run: terraform validate
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out=tfplan
+      - name: Save plan result
+        uses: actions/upload-artifact@v2
+        with:
+          name: terraform-plan
+          path: tfplan
+  deploy:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+    needs: terraform
+    if: github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: loadbalancer
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.8.5
+      - name: Download plan result
+        uses: actions/download-artifact@v2
+        with:
+          name: terraform-plan
+          path: tfplan
+      - name: Terraform Apply
+        run: terraform apply -input=false tfplan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ env.AWS_REGION }}
