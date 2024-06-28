@@ -1,30 +1,46 @@
+name: Terraform CI/CD
 on:
   push:
     branches:
       - main
-
+  pull_request:
+    branches:
+      - main
+env:
+  TF_VERSION: 1.8.5
+  TF_WORKING_DIR: Downloads/loadbalancer.
+  AWS_REGION: us-west-2
+  AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID}}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
 jobs:
-  tf_fmt:
-    name: Deploy Site
+  terraform:
+    name: 'Terraform'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
     steps:
-
-    - name: Checkout Repo
-      uses: actions/checkout@v1
-
-    - name: Terraform Init
-      uses: hashicorp/terraform-github-actions/init@v0.4.0
-      env:
-        TF_ACTION_WORKING_DIR: 'Downloads/loadbalancer'
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    - name: Terraform Validate
-      uses: hashicorp/terraform-github-actions/validate@v0.3.7
-
-    - name: Terraform Apply
-      uses: hashicorp/terraform-github-actions/apply@v0.4.0
-      env:
-       # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TF_ACTION_WORKING_DIR: 'Downloads/loadbalancer'
-        echo AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        echo AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+      - name: Terraform version
+        run: terraform -v    
+      - name: Terraform Init
+        run: terraform init
+      # - name: Terraform Format
+      #   run: terraform fmt -check -recursive
+      - name: Terraform Validate
+        run: terraform validate
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out=tfplan
+      - name: Save plan result
+        uses: actions/upload-artifact@v2
+        with:
+          name: terraform-plan
+          path: tfplan
+      - name: Terraform apply
+        run: terraform apply -auto-approve 
