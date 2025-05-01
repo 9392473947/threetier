@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Python CRUD App</title>
+</head>
+<body>
+  <h1>Simple CRUD App</h1>
+  <input type="text" id="itemInput" placeholder="Item name">
+  <button onclick="addItem()">Add</button>
+  <ul id="itemList"></ul>
+
+  <h2>Register</h2>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="registerUser()">Register</button>
+
+  <script>
+    const apiUrl = 'http://192.168.112.113:5000/api/items';
+    const registerUrl = 'http://192.168.112.113:5000/api/register';
+
+    // Fetch and display all items
+    async function fetchItems() {
+      const res = await fetch(apiUrl);
+      const items = await res.json();
+      const list = document.getElementById('itemList');
+      list.innerHTML = '';
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item.name;
+        li.onclick = () => deleteItem(item.id);
+        list.appendChild(li);
+      });
+    }
+
+    // Add a new item
+    async function addItem() {
+      const input = document.getElementById('itemInput');
+      await fetch(apiUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name: input.value })
+      });
+      input.value = '';
+      fetchItems();
+    }
+
+    // Delete an item
+    async function deleteItem(id) {
+      await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+      fetchItems();
+    }
+
+    // Register a user
+    async function registerUser() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch(registerUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username, password })
+      });
+      if (res.status === 201) {
+        alert('User registered successfully');
+      } else {
+        const err = await res.json();
+        alert('Error: ' + err.error);
+      }
+    }
+
+    fetchItems();
+  </script>
+</body>
+</html>
