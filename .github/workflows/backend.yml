@@ -83,5 +83,6 @@ jobs:
         sleep 10  # wait for Flask to start
         docker ps
         curl http://localhost:5000
+        sleep 5
         docker logs git-backend-container
 
