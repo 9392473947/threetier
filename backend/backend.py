@@ -76,7 +76,7 @@ def register():
         return jsonify({'id': user_id, 'username': username}), 201
     except psycopg2.IntegrityError:
         conn.rollback()
-        return jsonify({'error': 'Username a lready exists'}), 409
+        return jsonify({'error': 'Username a lready e xists'}), 409
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
