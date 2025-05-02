@@ -24,7 +24,7 @@ jobs:
           --health-retries 5
 
     env:
-      DB_HOST: localhost
+      DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: cruddb
       DB_USER: cruduser
@@ -72,7 +72,7 @@ jobs:
           -e DB_NAME=cruddb \
           -e DB_USER=cruduser \
           -e DB_PASSWORD=password \
-          -e DB_HOST=localhost \
+          -e DB_HOST=postgres \
           git-backend
     - name: Check if container is running
       run: docker ps -a | grep git-backend-container || echo "Container not found"
