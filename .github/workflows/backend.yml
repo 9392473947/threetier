@@ -48,3 +48,10 @@ jobs:
     - name: Check if container is running
       run: docker ps -a | grep git-backend-container || echo "Container not found"
 
+    - name: Wait and test Flask endpoint
+      run: |
+        docker ps
+        sleep 10  # wait for Flask to start
+        docker ps
+        curl -f http://localhost:5000 || echo "Flask not responding"
+
