@@ -43,7 +43,7 @@ jobs:
           -e DB_NAME=cruddb \
           -e DB_USER=cruduser \
           -e DB_PASSWORD=password \
-          -e DB_HOST=127.0.0.1 \
+          -e DB_HOST=192.168.49.1 \
           git-backend
     - name: Check if container is running
       run: docker ps -a | grep git-backend-container || echo "Container not found"
