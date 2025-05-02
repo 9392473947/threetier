@@ -6,7 +6,29 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted 
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: cruduser
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: cruddb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: cruddb
+      DB_USER: cruduser
+      DB_PASSWORD: password
 
     steps:
     - uses: actions/checkout@v3
@@ -37,13 +59,20 @@ jobs:
         docker stop git-backend-container || true
         docker rm git-backend-container || true
 
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        until pg_isready -h localhost -p 5432; do
+          echo "Waiting for PostgreSQL to be ready..."
+          sleep 2
+        done
+
     - name: Run Flask c ontainer
       run: |
         docker run -d --name git-backend-container -p 5000:5000 \
           -e DB_NAME=cruddb \
           -e DB_USER=cruduser \
           -e DB_PASSWORD=password \
-          -e DB_HOST=192.168.49.1 \
+          -e DB_HOST=localhost \
           git-backend
     - name: Check if container is running
       run: docker ps -a | grep git-backend-container || echo "Container not found"
