@@ -30,7 +30,7 @@ jobs:
 
     - name: Build Docker image
       run: | 
-          docker build -t git-backend .
+          docker build -t git-backend ./backend
 
     - name: Stop old container if exists
       run: |
