@@ -45,3 +45,6 @@ jobs:
           -e DB_PASSWORD=password \
           -e DB_HOST=127.0.0.1 \
           git-backend
+    - name: Check if container is running
+      run: docker ps -a | grep git-backend-container || echo "Container not found"
+
