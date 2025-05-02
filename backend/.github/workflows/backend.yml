@@ -49,3 +49,10 @@ jobs:
           -e DB_PASSWORD=password \
           -e DB_HOST=127.0.0.1 \
           git-backend
+
+    - name: Upload logs
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-logs
+        path: /var/log/docker.log  # or replace with actual log/output files
+
