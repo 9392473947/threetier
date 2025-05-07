@@ -10,7 +10,7 @@ CORS(app)
 DB_NAME = os.getenv("DB_NAME", "cruddb")
 DB_USER = os.getenv("DB_USER", "cruduser")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
-DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_HOST = os.getenv("DB_HOST", "postgres")
 
 # Connect to PostgreSQL database
 conn = psycopg2.connect(
