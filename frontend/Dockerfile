@@ -1,8 +1,9 @@
 # Use official Nginx image
 FROM nginx:alpine
-
+WORKDIR /usr/share/nginx/html/
+RUN rm -r *
 # Copy your HTML file(s) into Nginx's default web directory
-COPY frontend.html /usr/share/nginx/html/
+COPY index.html /usr/share/nginx/html/
 
 # Optional: Expose port 80 (default Nginx port)
-EXPOSE 80
+EXPOSE 82

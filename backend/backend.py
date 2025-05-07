@@ -9,7 +9,7 @@ CORS(app)
 # Read from environment variables
 DB_NAME = os.getenv("DB_NAME", "cruddb")
 DB_USER = os.getenv("DB_USER", "cruduser")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "crudpass")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
 DB_HOST = os.getenv("DB_HOST", "localhost")
 
 # Connect to PostgreSQL database
