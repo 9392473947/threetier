@@ -14,9 +14,10 @@
   <input type="password" id="password" placeholder="Password">
   <button onclick="registerUser()">Register</button>
 
+  <script src="config.js"></script>
   <script>
-    const apiUrl = 'http://backend:5000/api/items';
-    const registerUrl = 'http://backend:5000/api/register';
+    const apiUrl = CONFIG.API_URL;
+    const registerUrl = CONFIG.REGISTER_URL;
 
     // Fetch and display all items
     async function fetchItems() {

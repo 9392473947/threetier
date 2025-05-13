@@ -1,0 +1,4 @@
+const CONFIG = {
+  API_URL: '${API_URL}',
+  REGISTER_URL: '${REGISTER_URL}'
+};
