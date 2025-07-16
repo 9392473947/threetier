@@ -71,3 +71,9 @@ jobs:
           kubectl apply -f ./frontend/frontdeploy.yml || true
           kubectl rollout restart deploy frontend-app
           kubectl apply -f ./frontend/frontsvc.yml || true
+
+      - name: installing ingress controller
+        run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
+
+      - name: deploying ingress
+        run: kubectl apply -f ingress.yaml
