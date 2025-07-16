@@ -10,7 +10,7 @@ CORS(app)
 DB_NAME = os.getenv("DB_NAME", "cruddb")
 DB_USER = os.getenv("DB_USER", "cruduser")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
-DB_HOST = os.getenv("DB_HOST", "postgres")
+DB_HOST = os.getenv("DB_HOST", "localhost")
 
 # Connect to PostgreSQL database
 conn = psycopg2.connect(
@@ -79,4 +79,4 @@ def register():
         return jsonify({'error': 'Username a lready e xists'}), 409
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5050)

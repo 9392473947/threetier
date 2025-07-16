@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-app
+  labels:
+    app: backend-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-app
+  template:
+    metadata:
+      labels:
+        app: backend-app
+    spec:
+      containers:
+        - name: backend-app
+          image: asia-south1-docker.pkg.dev/chaithu-project-463807/kuberepo/backendkube:latest
+          ports:
+            - containerPort: 5000
+          env:
+           - name: DB_HOST
+             value: "35.200.193.49"      # Should match the postgres service name
+           - name: DB_PORT
+             value: "5432"
+           - name: DB_NAME
+             value: "cruddb"
+           - name: DB_USER
+             value: "cruduser"
+           - name: DB_PASSWORD
+             value: "password"

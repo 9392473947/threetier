@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-app
+  labels:
+    app: frontend-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend-app
+  template:
+    metadata:
+      labels:
+        app: frontend-app
+    spec:
+      containers:
+        - name: backend-app
+          image: asia-south1-docker.pkg.dev/chaithu-project-463807/kuberepo/frontendkube:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: API_URL
+              value: "http://34.93.104.98:5000/api/items"
+            - name: REGISTER_URL
+              value: "http://34.93.104.98:5000/api/users"  
