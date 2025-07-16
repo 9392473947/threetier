@@ -56,6 +56,15 @@ jobs:
         run: |
           # gcloud components install gke-gcloud-auth-plugin
           gcloud container clusters get-credentials privatecluster --region asia-south1 --project $PROJECT_ID
+      - name: Install kubectl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl
+          sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+          echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+          sudo apt-get update
+          sudo apt-get install -y kubectl
+
       - name: verifying kubectl
         run: |
           kubectl version
