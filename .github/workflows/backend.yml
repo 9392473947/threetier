@@ -1,87 +1,73 @@
-name: self-hosted for backend
+name: Build and push docker images to Artifact Registry
 
-on: 
-  push: 
-    branches: [ main ] 
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  build:
+  build-and-push:
+    name: Build, Push, and Test with My SQL
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: cruduser
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: cruddb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     env:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: cruddb
-      DB_USER: cruduser
-      DB_PASSWORD: password
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      REPO_NAME: kuberepo
+      BACKEND_IMAGE: asia-south1-docker.pkg.dev/chaithu-project-463807/kuberepo/backendkube:latest
+      FRONTEND_IMAGE: asia-south1-docker.pkg.dev/chaithu-project-463807/kuberepo/frontendkube:latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: 3.11
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: |
-        if ! command -v docker &> /dev/null; then
-          echo "Installing Docker..."
-          sudo apt update -y || sudo yum update -y
-          sudo apt install -y docker.io || sudo yum install -y docker
-          sudo systemctl start docker
-          sudo systemctl enable docker
-          sudo usermod -aG docker $USER
-        else
-          echo "Docker already installed"
-        fi
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: chaithu-project-463807
+          install_components: gke-gcloud-auth-plugin
 
-    - name: Build Docker image
-      run: | 
-          docker build -t git-backend ./backend
+          
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-    - name: Stop old container if exists
-      run: |
-        docker stop git-backend-container || true
-        docker rm git-backend-container || true
+      - name: authenticate gcp with remote
+        run: gcloud config set project $PROJECT_ID
 
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        until pg_isready -h localhost -p 5432; do
-          echo "Waiting for PostgreSQL to be ready..."
-          sleep 2
-        done
+      - name: Configure Docker to use Artifact Registry
+        run: gcloud auth configure-docker asia-south1-docker.pkg.dev
 
-    - name: Run Flask c ontainer
-      run: |
-        docker run -d --name git-backend-container -p 5000:5000 \
-          -e DB_NAME=cruddb \
-          -e DB_USER=cruduser \
-          -e DB_PASSWORD=password \
-          -e DB_HOST=postgres \
-          git-backend
-    - name: Check if container is running
-      run: docker ps -a | grep git-backend-container || echo "Container not found"
+      - name: Who am I?
+        run: gcloud auth list
 
-    - name: Wait and test Flask endpoint
-      run: |
-        docker ps
-        sleep 10  # wait for Flask to start
-        docker ps
-        sleep 5
-        docker logs git-backend-container
+      - name: Build Backend Docker Image
+        run: docker build -t $BACKEND_IMAGE ./backend
 
+      - name: Push Backend Image
+        run: docker push $BACKEND_IMAGE
+
+      - name: Build Frontend Docker Image
+        run: docker build -t $FRONTEND_IMAGE ./frontend
+
+      - name: Push Frontend Image
+        run: docker push $FRONTEND_IMAGE
+        
+      - name: Authenticate to GKE
+        run: |
+          # gcloud components install gke-gcloud-auth-plugin
+          gcloud container clusters get-credentials privatecluster --region asia-south1 --project $PROJECT_ID
+      - name: verifying kubectl
+        run: |
+          kubectl version
+          kubectl get nodes
+        
+      - name: Deploy backend to GKE
+        run: |
+          kubectl apply -f ./backend/backdeploy.yml || true
+          kubectl apply -f ./backend/backsvc.yaml || true  
+          kubectl rollout restart deploy backend-app
+      - name: Deploy frontend to GKE
+        run: |
+          kubectl apply -f ./frontend/frontdeploy.yml || true
+          kubectl rollout restart deploy frontend-app
+          kubectl apply -f ./frontend/frontsvc.yml || true
