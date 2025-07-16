@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-push:
     name: Build, Push, and Test with My SQL
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
       REPO_NAME: kuberepo
