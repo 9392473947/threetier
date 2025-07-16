@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-push:
-    name: Build, Push, and Test with MySQL
+    name: Build, Push, and Test with My SQL
     runs-on: self-hosted
     env:
       PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
