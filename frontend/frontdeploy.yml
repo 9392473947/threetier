@@ -21,6 +21,6 @@ spec:
             - containerPort: 80
           env:
             - name: API_URL
-              value: "http://http://34.93.104.98:5000//api/items"
+              value: "http://http://34.93.104.98:5000/api/items"
             - name: REGISTER_URL
-              value: "http://http://34.93.104.98:5000//api/users"  
+              value: "http://http://34.93.104.98:5000/api/users"  
