@@ -26,10 +26,17 @@ jobs:
           install_components: gke-gcloud-auth-plugin
 
           
+      # - name: Authenticate to Google Cloud
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     credentials_json: '${{ secrets.GCP_SA_KEY }}'
+      
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          token_format: "access_token"
+          workload_identity_provider: "projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "ghadeployer@chaithu-project-463807.iam.gserviceaccount.com"
 
       - name: authenticate gcp with remote
         run: gcloud config set project $PROJECT_ID
