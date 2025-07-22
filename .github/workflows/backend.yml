@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build-and-push:
-    name: Build, Push, and Test with My SQL
+    name: Build, Push, and Test with MySQL
     runs-on: self-hosted
     env:
       PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
